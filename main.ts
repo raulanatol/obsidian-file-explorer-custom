@@ -1,5 +1,7 @@
-import {Plugin, WorkspaceLeaf} from 'obsidian';
+import {App, MarkdownPostProcessorContext, Plugin, PluginManifest, WorkspaceLeaf} from 'obsidian';
 import {addIndexClass, isIndex} from "./src/helpers";
+import {Folders} from "./src/renders/Folders";
+import {FileHelper} from "./src/helpers/FileHelper";
 
 interface Settings {
 	name: string;
@@ -15,14 +17,32 @@ const DEFAULT_SETTINGS: Settings = {
 
 export default class MyPlugin extends Plugin {
 	settings: Settings;
+	fileHelper: FileHelper;
+
+	constructor(app: App, manifest: PluginManifest) {
+		super(app, manifest);
+		this.fileHelper = new FileHelper(this.app.vault);
+	}
 
 	async onload() {
 		await this.loadSettings();
 		this.app.workspace.onLayoutReady(() => this.initialize());
+		this.registerMarkdownPostProcessor((element, context) => this.markdownPostProcessor(element, context))
 	}
 
 	onunload() {
 
+	}
+
+	async markdownPostProcessor(element: HTMLElement, context: MarkdownPostProcessorContext) {
+		const codeblocks = element.querySelectorAll("code");
+		for (let index = 0; index < codeblocks.length; index++) {
+			const codeblock = codeblocks.item(index);
+			const text = codeblock.innerText.trim();
+			if (text === '{{folders}}') {
+				context.addChild(new Folders(codeblock, context.sourcePath, this.fileHelper));
+			}
+		}
 	}
 
 	async initialize() {
