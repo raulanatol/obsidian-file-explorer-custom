@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
-	"version": "1.0.1",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"name": "obsidian-file-explorer-custom",
+	"version": "1.0.0",
+	"description": "Obsidian plugin to customize the file explorer",
 	"main": "main.js",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
